@@ -3,7 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Brandon's Things</title>
+  <title>Brandon's Projects</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <!-- Controls what appears when shared on iMessage, text, social, etc. -->
+  <meta property="og:title" content="Brandon's Projects" />
+  <meta property="og:description" content="Games, trackers, and tools by Brandon Dengel." />
+  <meta property="og:image" content="favicon.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Brandon's Projects" />
+  <meta name="twitter:image" content="favicon.png" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet" />
   <style>
@@ -28,12 +38,6 @@
       font-size: 36px;
       font-weight: 900;
       letter-spacing: -0.5px;
-    }
-    .site-sub {
-      font-size: 16px;
-      color: #888;
-      margin-top: 4px;
-      font-weight: 700;
     }
 
     .list {
@@ -83,6 +87,102 @@
       line-height: 1.4;
     }
 
+    /* ── Shutterfly locked card ── */
+    .card-locked {
+      cursor: pointer;
+    }
+    .lock-badge {
+      font-size: 11px;
+      font-weight: 800;
+      color: #e8a020;
+      background: #fff8ec;
+      border: 1.5px solid #f0c060;
+      border-radius: 6px;
+      padding: 2px 7px;
+      display: inline-block;
+      margin-top: 5px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 20px;
+      padding: 36px 32px 28px;
+      width: 320px;
+      max-width: 90vw;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .modal-icon { font-size: 36px; margin-bottom: 10px; }
+    .modal h2 {
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+    .modal p {
+      font-size: 13px;
+      color: #888;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .modal input {
+      width: 100%;
+      padding: 10px 14px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color 0.15s;
+    }
+    .modal input:focus { border-color: #e8a020; }
+    .modal input.error { border-color: #e84040; }
+    .modal-error {
+      font-size: 12px;
+      color: #e84040;
+      font-weight: 800;
+      min-height: 18px;
+      margin-bottom: 8px;
+    }
+    .modal-btn {
+      width: 100%;
+      padding: 11px;
+      background: #e8a020;
+      color: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 900;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .modal-btn:hover { background: #c8880a; }
+    .modal-cancel {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #bbb;
+      font-weight: 700;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: 'Nunito', sans-serif;
+    }
+    .modal-cancel:hover { color: #888; }
+
     footer {
       margin-top: 48px;
       font-size: 13px;
@@ -127,7 +227,7 @@
 
   <!-- ── First Born ── -->
   <a class="card" href="/FirstBornGame/" target="_blank" rel="noopener">
-    <img class="card-art" src="FirstBornGame.png" alt="First Born: The Game" />
+    <img class="card-art" src="FirstBornGame.png" alt="First Born" />
     <div class="card-info">
       <div class="card-name">First Born</div>
       <div class="card-desc">Birth year guessing game</div>
@@ -143,11 +243,64 @@
     </div>
   </a>
 
+  <!-- ── Shutterfly (password protected) ── -->
+  <div class="card card-locked" onclick="openModal()">
+    <img class="card-art" src="Shutterfly.png" alt="Photo Album"
+         onerror="this.outerHTML='<div style=\'width:130px;height:90px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:48px;\'>📷</div>'" />
+    <div class="card-info">
+      <div class="card-name">Wedding Photos</div>
+      <div class="card-desc">Private Shutterfly album.</div>
+      <span class="lock-badge">🔒 Password Required</span>
+    </div>
+  </div>
+
 </div>
 
 <footer>
   <p>Ideas by <a href="https://www.linkedin.com/in/brandon-dengel-pe-617673121/" target="_blank" rel="noopener">Brandon Dengel</a>, made using Claude AI</p>
 </footer>
+
+<!-- ── Password Modal ── -->
+<div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-icon">📷</div>
+    <h2>Wedding Photos</h2>
+    <p>Enter the password to view this album.</p>
+    <input type="password" id="pw-input" placeholder="Password"
+           onkeydown="if(event.key==='Enter') checkPassword()" />
+    <div class="modal-error" id="pw-error"></div>
+    <button class="modal-btn" onclick="checkPassword()">View Album</button>
+    <br/>
+    <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+  function openModal() {
+    document.getElementById('modal').classList.add('active');
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-error').textContent = '';
+    document.getElementById('pw-input').classList.remove('error');
+    setTimeout(() => document.getElementById('pw-input').focus(), 50);
+  }
+  function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal')) closeModal();
+  }
+  function checkPassword() {
+    const val = document.getElementById('pw-input').value;
+    if (val === '10525') {
+      closeModal();
+      window.open('https://linkit.shutterfly.com/aAQJOe', '_blank');
+    } else {
+      document.getElementById('pw-error').textContent = 'Incorrect password. Try again.';
+      document.getElementById('pw-input').classList.add('error');
+      document.getElementById('pw-input').select();
+    }
+  }
+</script>
 
 </body>
 </html>
