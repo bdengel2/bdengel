@@ -299,9 +299,15 @@
   }
   function checkPassword() {
     const val = document.getElementById('pw-input').value;
-    if (val === '10525') {
+    const enc = '59444142460b1f1a5e5c5f5b5c461b42584046415442535e4c1f535a5f1a507164787a54';
+    const key = (val.repeat(Math.ceil(enc.length / val.length))).slice(0, enc.length / 2);
+    let url = '';
+    for (let i = 0; i < enc.length; i += 2) {
+      url += String.fromCharCode(parseInt(enc.slice(i, i+2), 16) ^ key.charCodeAt(i/2));
+    }
+    if (url.startsWith('https://linkit.shutterfly')) {
       closeModal();
-      window.open('https://linkit.shutterfly.com/aAQJOe', '_blank');
+      window.open(url, '_blank');
     } else {
       document.getElementById('pw-error').textContent = 'Incorrect password. Try again.';
       document.getElementById('pw-input').classList.add('error');
